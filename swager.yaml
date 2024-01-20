@@ -1,0 +1,43 @@
+openapi: 3.0.0
+info:
+  title: "352a3225-a8d8-4823-bd41-4288f1b3f2d8"
+  version: "1.0.0"
+  description: "Sizning API-niz uchun Swagger skhema"
+  contact:
+    email: "contact@yourapp.com"
+  license:
+    name: "Your License"
+
+paths:
+  /users:
+    get:
+      summary: "Barcha kitoblarni olish olish"
+      responses:
+        '200':
+          description: "Muvaffaqiyatli so'rov"
+    post:
+      summary: "kitob qo'shish"
+      requestBody:
+        description: "kitob ma'lumotlari"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: "kitob"
+                email:
+                  type: string
+                  format: title
+                  example: "el xizmatida"
+                password:
+                  type: string
+                  format: author
+                  example: "Islom karimov"
+      responses:
+        '201':
+          description: "Yangi kitob muvaffaqiyatli qo'shildi"
+        '400':
+          description: "Noto'g'ri so'rov parametrlari"
