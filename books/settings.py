@@ -37,11 +37,19 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework',
-    'rest_framework_simplejwt',
-    'sheets',
+    'sheets.apps.SheetsConfig',
+    'rest_framework',               
+    'drf_yasg'   ,
     
 ]
+
+
+SWAGGER_SETTINGS = {
+    'USE_SESSION_AUTH': False,
+    'JSON_EDITOR': True,
+}
+
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

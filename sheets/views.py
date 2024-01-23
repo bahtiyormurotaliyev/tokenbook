@@ -1,30 +1,68 @@
-from django.shortcuts import render
-
-from rest_framework import generics
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Books
-from .serializers import BooksSerializer
+from rest_framework import viewsets
+from .models import *
+from .serializers import*
+# Create your views here.
 
-class BooksListView(generics.ListCreateAPIView):
-    queryset = Books.objects.all()
-    serializer_class = BooksSerializer
-    permission_classes = [IsAuthenticated]
 
-    def perform_create(self, serializer):
-        # Yangi kitobni qo'shishda user_id ni olib qo'yish
-        serializer.save(user_id=self.request.user)
+class GetMethod(viewsets.ModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
 
-class BooksDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Books.objects.all()
-    serializer_class = BooksSerializer
-    permission_classes = [IsAuthenticated]
+    def list(self, request, *args, **kwargs):
+        data = list(Product.objects.all().values())
+        return Response(data)
+
+    def retrieve(self, request, *args, **kwargs):
+        data = list(Product.objects.filter(category=kwargs['pk']).values())
+        return Response(data)
+
+    def create(self, request, *args, **kwargs):
+        product_serializer_data = ProductSerializer(data=request.data)
+        if product_serializer_data.is_valid():
+            product_serializer_data.save()
+            status_code = status.HTTP_201_CREATED
+            return Response({"message": "Product Added Sucessfully", "status": status_code})
+        else:
+            status_code = status.HTTP_400_BAD_REQUEST
+            return Response({"message": "please fill the datails", "status": status_code})
+
+    def destroy(self, request, *args, **kwargs):
+        product_data = Product.objects.filter(id=kwargs['pk'])
+        if product_data:
+            product_data.delete()
+            status_code = status.HTTP_201_CREATED
+            return Response({"message": "Product delete Sucessfully", "status": status_code})
+        else:
+            status_code = status.HTTP_400_BAD_REQUEST
+            return Response({"message": "Product data not found", "status": status_code})
 
     def update(self, request, *args, **kwargs):
-        # Kitobni tahrirlashda faqat ozi kiritgan kitob malumotlarini tahrirlash
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data)
+        product_details = Product.objects.get(id=kwargs['pk'])
+        product_serializer_data = ProductSerializer(
+            product_details, data=request.data, partial=True)
+        if product_serializer_data.is_valid():
+            product_serializer_data.save()
+            status_code = status.HTTP_201_CREATED
+            return Response({"message": "Product Update Sucessfully", "status": status_code})
+        else:
+            status_code = status.HTTP_400_BAD_REQUEST
+            return Response({"message": "Product data Not found", "status": status_code})
+from rest_framework import viewsets
+from .models import Customer, Harid
+from .serializers import CustomerSerializer, HaridSerializer
+from rest_framework import viewsets
+from .models import Customer, Harid
+from .serializers import CustomerSerializer, HaridSerializer
+
+class CustomerViewSet(viewsets.ModelViewSet):
+    queryset = Customer.objects.all()
+    serializer_class = CustomerSerializer
+
+class HaridListView(viewsets.ReadOnlyModelViewSet):
+    serializer_class = HaridSerializer
+
+    def get_queryset(self):
+        customer_id = self.kwargs['customer_id']
+        return Harid.objects.filter(customer_id=customer_id)
